@@ -1,0 +1,27 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+<h2>Tax Report - {{ quarter|upper }} ({{ start_date }} to {{ end_date }})</h2>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Business: John Doe Inc.</h5>
+    <p><strong>Prepared on:</strong> {{ now|date:"F j, Y" }}</p>
+    <hr>
+    <p><strong>Total Revenue:</strong> ${{ total_revenue|default:"54,300.00" }}</p>
+    <p><strong>Total Expenses:</strong> ${{ total_expenses|default:"24,750.00" }}</p>
+    <p><strong>Net Income:</strong>
+      <span class="{% if net_income < 0 %}text-danger{% else %}text-success{% endif %}">
+        ${{ net_income|default:"29,550.00" }}
+      </span>
+    </p>
+  </div>
+</div>
+
+<div class="mt-4">
+  <a href="{% url 'profit_and_loss' %}?start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-outline-primary">
+    View Full Profit & Loss
+  </a>
+  <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
+JournalEntry.objects.create(transaction=tx, account=exp_acct, amount=300.00, entry_type='DEBIT')

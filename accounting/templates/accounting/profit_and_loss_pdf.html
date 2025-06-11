@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: "DejaVu Sans", sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; border-bottom: 1px solid #ccc; text-align: left; }
+        h2 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h2>Profit & Loss Report</h2>
+    <p><strong>Period:</strong> {{ start_date }} to {{ end_date }}</p>
+
+    <h3>Revenue</h3>
+    <table>
+        {% for item in revenue_summary %}
+        <tr>
+            <td>{{ item.account__name }}</td>
+            <td>${{ item.total|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <th>Total Revenue</th>
+            <th>${{ total_revenue|floatformat:2 }}</th>
+        </tr>
+    </table>
+
+    <h3>Expenses</h3>
+    <table>
+        {% for item in expense_summary %}
+        <tr>
+            <td>{{ item.account__name }}</td>
+            <td>${{ item.total|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <th>Total Expenses</th>
+            <th>${{ total_expenses|floatformat:2 }}</th>
+        </tr>
+    </table>
+
+    <h3>Net Income</h3>
+    <p><strong>${{ net_income|floatformat:2 }}</strong></p>
+</body>
+</html>

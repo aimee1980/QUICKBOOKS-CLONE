@@ -1,0 +1,75 @@
+{% extends "accounting/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="card p-4">
+    <h2>Recent Transactions</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th class="text-end">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.date|date:"Y-m-d" }}</td>
+                <td>
+                    <a href="{% url 'transaction_detail' transaction.id %}">
+                        {{ transaction.description }}
+                    </a>
+                </td>
+                <td class="text-end">${{ transaction.total_amount|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No transactions yet</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card mt-4">
+  <div class="card-header bg-warning text-dark">
+    <strong>Upcoming Reminders</strong>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item d-flex justify-content-between">
+      <a href="{% url 'tax_doc' quarter='Q2' %}" class="text-decoration-none">Quarterly Tax Filing</a>
+      <span class="text-danger">Due: July 15, 2025</span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between">
+      <a href="https://www.ontario.ca/page/renew-business-licence" target="_blank" class="text-decoration-none">Business License Renewal</a>
+      <span class="text-warning">Due: August 1, 2025</span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between">
+      <a href="{% url 'invoice_list' %}" class="text-decoration-none">GST/HST Payment</a>
+      <span class="text-danger">Due: July 30, 2025</span>
+    </li>
+  </ul>
+</div>
+<div class="card mt-4">
+  <div class="card-header bg-info text-white">
+    <strong>CRA Policy Updates</strong>
+  </div>
+  <div class="card-body">
+    <p>
+      <strong>Update:</strong> As of June 2025, CRA requires digital records for all income over $30,000/year.
+      <br>
+      
+     <a href="https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/keeping-records.html"
+   target="_blank"
+   class="btn btn-sm btn-outline-light mt-2 custom-cra-link">
+   CRA Record Keeping Guidelines
+</a>
+
+    </p>
+  </div>
+</div>
+
+
+{% endblock %}

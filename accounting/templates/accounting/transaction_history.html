@@ -1,0 +1,31 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+<h2>Transaction Details ({{ transaction.reference_number }})</h2> {# Updated title #}
+
+{# Removed the outer {% for transaction in transactions %} loop #}
+<div class="card my-3">
+  <div class="card-header">
+    <strong>Date: {{ transaction.date }}</strong> - {{ transaction.description }} (Ref: {{ transaction.reference_number }})
+  </div>
+  <div class="card-body">
+    <h3>Journal Entries</h3>
+    <ul class="list-group list-group-flush">
+      {% for entry in transaction.entries.all %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>{{ entry.account.name }}</span>
+        <span class="{% if entry.entry_type == 'DEBIT' %}text-danger{% else %}text-success{% endif %}">
+            {{ entry.entry_type }}: ${{ entry.amount|floatformat:2 }}
+        </span>
+      </li>
+      {% empty %}
+      <li class="list-group-item">No entries found for this transaction.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<p>
+    <a href="{% url 'transactions_list' %}" class="btn btn-secondary">Back to Transactions List</a>
+    {# You might add an edit button here too #}
+    {# <a href="{% url 'transaction_edit' transaction.id %}" class="btn btn-primary">Edit Transaction</a> #}
+</p>
+{% endblock %}

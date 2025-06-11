@@ -1,0 +1,17 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+<div class="card p-4 mt-3">
+    <h2 class="mb-4">Assistant Bot 🤖</h2>
+    <form method="post">
+        {% csrf_token %}
+        <textarea name="message" class="form-control mb-3" placeholder="Ask me anything..." rows="3"></textarea>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+
+    {% if response %}
+    <div class="alert alert-info mt-4">
+        <strong>Bot:</strong> {{ response }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

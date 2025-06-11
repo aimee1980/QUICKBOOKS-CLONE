@@ -1,0 +1,72 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+
+<h2>{{ account.name }} – Transactions</h2>
+
+{% if start_date and end_date %}
+  <p><strong>Date Range:</strong> {{ start_date }} to {{ end_date }}</p>
+{% endif %}
+
+
+<!-- Account Summary Overview -->
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">{{ account.name }} Summary</h5>
+    <div class="row">
+      <div class="col-md-3">
+        <strong>Total Debits:</strong><br>
+        ${{ total_debits|floatformat:2 }}
+      </div>
+      <div class="col-md-3">
+        <strong>Total Credits:</strong><br>
+        ${{ total_credits|floatformat:2 }}
+      </div>
+      <div class="col-md-3">
+        <strong>Transactions:</strong><br>
+        {{ transaction_count }}
+      </div>
+      <div class="col-md-3">
+        <strong>Net Movement:</strong><br>
+        <span class="{% if net_movement < 0 %}text-danger{% else %}text-success{% endif %}">
+          ${{ net_movement|floatformat:2 }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Reference #</th>
+      <th>Amount</th>
+      <th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for entry in entries %}
+      <tr>
+        <td>{{ entry.transaction.date }}</td>
+        <td>{{ entry.transaction.description }}</td>
+        <td>{{ entry.transaction.reference_number }}</td>
+        <td>${{ entry.amount|floatformat:2 }}</td>
+        <td>{{ entry.entry_type }}</td>
+      </tr>
+    {% endfor %}
+    {% if not entries %}
+      <tr>
+        <td colspan="5" class="text-center text-muted">No transactions found for this account.</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>
+
+<a href="{% url 'profit_and_loss' %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}" class="btn btn-secondary">
+  ← Back to Profit & Loss
+</a>
+
+{% endblock %}
