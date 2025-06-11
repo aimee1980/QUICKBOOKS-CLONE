@@ -1,0 +1,106 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+
+<div class="text-center mt-4">
+    <a href="https://www.canada.ca/en/revenue-agency.html" target="_blank" class="btn btn-outline-info">
+        Visit the CRA (Canada Revenue Agency)
+    </a>
+</div>
+
+<h2>Invoices</h2>
+
+<!-- Add Invoice Button -->
+<div class="text-end my-3">
+    <a href="{% url 'add_invoice' %}" class="btn btn-success">Upload New Invoice</a>
+</div>
+
+<div class="d-flex justify-content-end mb-3">
+  <button onclick="window.print()" class="btn btn-outline-dark">
+    🖨️ Print Report
+  </button>
+</div>
+
+<!-- Current Invoices -->
+<h4>Current Invoices</h4>
+{% if current_invoices %}
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Client</th><th>Amount</th><th>Due Date</th><th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice in current_invoices %}
+    <tr>
+      <td>
+        <a href="{% url 'invoice_detail' invoice.id %}">
+          {{ invoice.client }}
+        </a>
+      </td>
+      <td>${{ invoice.amount }}</td>
+      <td>{{ invoice.due_date }}</td>
+      <td>{{ invoice.status }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <div class="alert alert-info">No current invoices found.</div>
+{% endif %}
+
+<!-- Past Due Invoices -->
+<h4 class="mt-4 text-danger">Past Due Invoices</h4>
+{% if past_due_invoices %}
+<table class="table table-bordered table-danger">
+  <thead>
+    <tr>
+      <th>Client</th><th>Amount</th><th>Due Date</th><th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice in past_due_invoices %}
+    <tr>
+      <td>
+        <a href="{% url 'invoice_detail' invoice.id %}">
+          {{ invoice.client }}
+        </a>
+      </td>
+      <td>${{ invoice.amount }}</td>
+      <td>{{ invoice.due_date }}</td>
+      <td>{{ invoice.status }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <div class="alert alert-success">No past due invoices. 🎉</div>
+{% endif %}
+
+<!-- Chart.js Pie Chart -->
+<div class="card mt-5">
+  <div class="card-body">
+    <h5 class="card-title">Invoice Status Breakdown</h5>
+    <canvas id="invoiceStatusChart" height="100"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const statusCtx = document.getElementById('invoiceStatusChart').getContext('2d');
+  const statusChart = new Chart(statusCtx, {
+    type: 'pie',
+    data: {
+      labels: [{% for item in status_summary %}"{{ item.status }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+      datasets: [{
+        label: 'Total by Status',
+        data: [{% for item in status_summary %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+        backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+      }]
+    },
+    options: {
+      responsive: true
+    }
+  });
+</script>
+
+{% endblock %}

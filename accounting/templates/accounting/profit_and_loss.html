@@ -1,0 +1,210 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+
+<!-- Quick Quarter Filters -->
+<div class="mb-4">
+  <strong>Quick Filter:</strong>
+  <a href="?start_date=2025-01-01&end_date=2025-03-31" class="btn btn-sm btn-outline-primary">Q1</a>
+  <a href="?start_date=2025-04-01&end_date=2025-06-30" class="btn btn-sm btn-outline-primary">Q2</a>
+  <a href="?start_date=2025-07-01&end_date=2025-09-30" class="btn btn-sm btn-outline-primary">Q3</a>
+  <a href="?start_date=2025-10-01&end_date=2025-12-31" class="btn btn-sm btn-outline-primary">Q4</a>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Filter + Export Buttons Form -->
+<form method="get" class="row g-3 mb-4">
+  <div class="col-md-3">
+    <label for="start_date" class="form-label">Start Date</label>
+    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date|date:'Y-m-d' }}">
+  </div>
+  <div class="col-md-3">
+    <label for="end_date" class="form-label">End Date</label>
+    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date|date:'Y-m-d' }}">
+  </div>
+  
+  <!-- Action Buttons (Submit, Clear, PDF, Excel) -->
+  <div class="col-md-3 align-self-end">
+    <button type="submit" class="btn btn-primary mt-2">Filter</button>
+  </div>
+  <div class="col-md-3 align-self-end">
+    <a href="{% url 'profit_and_loss' %}" class="btn btn-secondary mt-2">Clear Filter</a>
+  </div>
+  <div class="col-md-3 align-self-end">
+    <a href="{% url 'export_profit_loss_pdf' %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}"
+       class="btn btn-outline-danger mt-2" target="_blank">
+      📄 Download PDF
+    </a>
+  </div>
+  <div class="col-md-3 align-self-end">
+    <a href="{% url 'export_profit_loss_excel' %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}"
+       class="btn btn-outline-success mt-2" target="_blank">
+      📥 Download Excel
+    </a>
+  </div>
+</form>
+
+<!-- Print Button -->
+<div class="d-flex justify-content-end mb-3">
+  <button onclick="window.print()" class="btn btn-outline-dark">
+    🖨️ Print Report
+  </button>
+</div>
+
+<h2 class="mb-4">Profit and Loss Report</h2>
+
+<!-- No Data Message -->
+{% if request.GET.start_date and request.GET.end_date %}
+  {% if not revenue_summary and not expense_summary %}
+    <div class="alert alert-info">
+      No transactions found for the selected date range.
+    </div>
+  {% endif %}
+{% endif %}
+
+
+<!-- Revenue & Expenses -->
+<div class="row">
+
+
+  <!-- Revenue Section -->
+ 
+  <div class="col-md-6">
+    <h4>Revenue</h4>
+    <ul class="list-group mb-3">
+      {% for item in revenue_summary %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>
+            {% if item.account__id %}
+              <a href="{% url 'view_account_transactions' account_id=item.account__id %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}">
+                {{ item.account__name }}
+              </a>
+            {% else %}
+              {{ item.account__name }}
+            {% endif %}
+          </span>
+          <span>${{ item.total|floatformat:2 }}</span>
+        </li>
+      {% endfor %}
+      <li class="list-group-item active d-flex justify-content-between">
+        <strong>Total Revenue</strong>
+        <strong>${{ total_revenue|floatformat:2 }}</strong>
+      </li>
+    </ul>
+  </div>
+
+  
+  <!-- Expenses Section -->
+ 
+  <div class="col-md-6">
+    <h4>Expenses</h4>
+    <ul class="list-group mb-3">
+      {% for item in expense_summary %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>
+            {% if item.account__id %}
+              <a href="{% url 'view_account_transactions' account_id=item.account__id %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}">
+                {{ item.account__name }}
+              </a>
+            {% else %}
+              {{ item.account__name }}
+            {% endif %}
+          </span>
+          <span>${{ item.total|floatformat:2 }}</span>
+        </li>
+      {% endfor %}
+      <li class="list-group-item active d-flex justify-content-between">
+        <strong>Total Expenses</strong>
+        <strong>${{ total_expenses|floatformat:2 }}</strong>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- Net Income Summary -->
+<div class="card mt-4">
+  <div class="card-body d-flex justify-content-between">
+    <h4>Net Income</h4>
+    <h4>${{ net_income|floatformat:2 }}</h4>
+  </div>
+</div>
+
+
+
+
+<!-- Charts Script -->
+<script>
+  const ctx = document.getElementById('revExpChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Revenue', 'Expenses'],
+      datasets: [{
+        label: 'Amount ($)',
+        data: [{{ total_revenue|floatformat:"2" }}, {{ total_expenses|floatformat:"2" }}],
+        backgroundColor: ['#28a745', '#dc3545']
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  const pie = document.getElementById('expensePie').getContext('2d');
+  new Chart(pie, {
+    type: 'pie',
+    data: {
+      labels: [{% for item in top_expenses %}'{{ item.account__name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+      datasets: [{
+        data: [{% for item in top_expenses %}{{ item.total|floatformat:"2" }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff']
+      }]
+    },
+    options: { responsive: true }
+  });
+</script>
+
+<!-- Top 5 Expense Categories -->
+<div class="card mt-5">
+  <div class="card-body">
+    <h5 class="card-title">Top 5 Expense Categories</h5>
+    <canvas id="topExpensesChart" height="100"></canvas>
+  </div>
+</div>
+
+<script>
+  const topExpensesCtx = document.getElementById('topExpensesChart').getContext('2d');
+  const topExpensesChart = new Chart(topExpensesCtx, {
+    type: 'bar',
+    data: {
+      labels: [
+        {% for item in expense_summary|slice:":5" %}
+          "{{ item.account__name }}",
+        {% endfor %}
+      ],
+      datasets: [{
+        label: 'Amount ($)',
+        data: [
+          {% for item in expense_summary|slice:":5" %}
+            {{ item.total|floatformat:2 }},
+          {% endfor %}
+        ],
+        backgroundColor: '#f39c12'
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      scales: {
+        x: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+quickbooks_project/
+├── accounting/
+│   ├── templates/               ← NEW FOLDER YOU CREATE
+│   │   └── accounting/          ← APP-NAME SUBFOLDER
+│   │       ├── dashboard.html    ← Template (HTML)
+│   │       ├── transaction_form.html ← Template (HTML)
+│   │       └── balance_sheet.html ← Template (HTML)
+│   ├── __init__.py
+│   ├── admin.py                 ← Python (Model registration)
+│   ├── apps.py                  ← Python (App config)
+│   ├── forms.py                 ← Python (Form definitions)
+│   ├── models.py                ← Python (Database models)
+│   ├── urls.py                  ← Python (App URL routes)
+│   └── views.py                 ← Python (Business logic)
+├── quickbooks/
+│   ├── __init__.py
+│   ├── settings.py              ← Python (Project settings)
+│   ├── urls.py                  ← Python (Main URL routes)
+│   └── wsgi.py
+└── manage.py
+
+
+
+installs  
+-python, django, whitenoise
+
+
+
+
+
+
+
+****** api development has no front end
+handshake

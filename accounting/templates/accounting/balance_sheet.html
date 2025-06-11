@@ -1,0 +1,83 @@
+{% extends "accounting/base.html" %}
+{% block content %}
+
+
+<div class="d-flex justify-content-end mb-3">
+  <button onclick="window.print()" class="btn btn-outline-dark">
+    🖨️ Print Report
+  </button>
+</div>
+
+<h2 class="mb-4">Balance Sheet</h2>
+
+<div class="row">
+  <!-- Assets -->
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Assets</h5>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for account in assets %}
+          <li class="list-group-item d-flex justify-content-between">
+            <a href="{% url 'view_account_transactions' account.id %}">
+              {{ account.name }}
+            </a>
+            <span>${{ account.balance }}</span>
+          </li>
+        {% endfor %}
+        <li class="list-group-item active d-flex justify-content-between">
+          <strong>Total</strong>
+          <strong>${{ total_assets }}</strong>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Liabilities -->
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">Liabilities</h5>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for account in liabilities %}
+          <li class="list-group-item d-flex justify-content-between">
+            <a href="{% url 'view_account_transactions' account.id %}">
+              {{ account.name }}
+            </a>
+            <span>${{ account.balance }}</span>
+          </li>
+        {% endfor %}
+        <li class="list-group-item active d-flex justify-content-between">
+          <strong>Total</strong>
+          <strong>${{ total_liabilities }}</strong>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Equity -->
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Equity</h5>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for account in equity %}
+          <li class="list-group-item d-flex justify-content-between">
+            <a href="{% url 'view_account_transactions' account.id %}">
+              {{ account.name }}
+            </a>
+            <span>${{ account.balance }}</span>
+          </li>
+        {% endfor %}
+        <li class="list-group-item active d-flex justify-content-between">
+          <strong>Total</strong>
+          <strong>${{ total_equity }}</strong>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
